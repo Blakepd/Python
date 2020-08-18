@@ -1,0 +1,42 @@
+import mechanize
+import http.cookiejar as cookielib
+import subprocess
+import os
+import datetime
+import time
+
+# Browser
+br = mechanize.Browser()
+
+# Cookie Jar
+cj = cookielib.LWPCookieJar()
+br.set_cookiejar(cj)
+
+# Web Browser Options / refresh
+br.set_handle_equiv(True)
+br.set_handle_gzip(True)
+br.set_handle_redirect(True)
+br.set_handle_referer(True)
+br.set_handle_robots(False)
+br.set_handle_refresh(mechanize._http.HTTPRefreshProcessor(), max_time=1)
+
+# Add Header/UserAgent
+br.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 Firefox/3.0.1')]
+
+# Go to login URL and Enter Credentials
+br.open('PeopleSoft Login Page - URL')
+br.select_form(name="login")  # Find the login form
+br['userid'] = 'Username'     # Set the form values
+br['pwd'] = 'Password'
+resp = br.submit()
+
+# Set save destination path and make sure it's unique with time
+ts = time.time()
+st = datetime.datetime.fromtimestamp(ts).strftime('%Y%m%d%H%M%S')
+fpath = r'C:\Users\'UserID'\Documents\Query' + st + '.xlsx'
+
+# run query and save to fpath - When inputing URL ensure file type is listed. For excel: ICQryNameExcelURL. If query includes prompts include binds in URL: BIND1=Data&BIND2=Data etc.
+f = br.retrieve('PeopleSoft Query Full-URL',fpath)[0]
+
+# Optional - Open excel file for viewing
+os.startfile(fpath)
